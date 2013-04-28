@@ -8,6 +8,13 @@ import android.graphics.Color;
  *
  */
 public class GraphViewStyle {
+
+    public static final int kGraphViewStyleGridStyleHorizontalGridOnly = 0x0001;
+    public static final int kGraphViewStyleGridStyleVerticalGridOnly = 0x0010;
+    public static final int kGraphViewStyleGridStyleBothAxis = 0x0011;
+
+    private int gridStyle = kGraphViewStyleGridStyleBothAxis;
+
 	private int vLabelsColor;
 	private int hLabelsColor;
 	private int gridColor;
@@ -47,4 +54,13 @@ public class GraphViewStyle {
 	public void setGridColor(int c) {
 		gridColor = c;
 	}
+
+    public void setGridStyle(int s) {
+        gridStyle = s;
+    }
+
+    public int getGridStyle() {
+        return gridStyle;
+    }
+
 }

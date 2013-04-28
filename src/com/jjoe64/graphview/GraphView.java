@@ -82,17 +82,22 @@ abstract public class GraphView extends LinearLayout {
 			paint.setTextAlign(Align.LEFT);
 			int vers = verlabels.length - 1;
 			for (int i = 0; i < verlabels.length; i++) {
-				paint.setColor(graphViewStyle.getGridColor());
-				float y = ((graphheight / vers) * i) + border;
-				canvas.drawLine(horstart, y, width, y, paint);
+                if (i == 0 || i == verlabels.length-1 || (graphViewStyle.getGridStyle() & GraphViewStyle.kGraphViewStyleGridStyleHorizontalGridOnly) != 0){
+				    paint.setColor(graphViewStyle.getGridColor());
+				    float y = ((graphheight / vers) * i) + border;
+				    canvas.drawLine(horstart, y, width, y, paint);
+                }
 			}
 
 			// horizontal labels + lines
 			int hors = horlabels.length - 1;
 			for (int i = 0; i < horlabels.length; i++) {
-				paint.setColor(graphViewStyle.getGridColor());
-				float x = ((graphwidth / hors) * i) + horstart;
-				canvas.drawLine(x, height - border, x, border, paint);
+                float x = ((graphwidth / hors) * i) + horstart;
+                if (i == 0 || i == horlabels.length-1 || (graphViewStyle.getGridStyle() & GraphViewStyle.kGraphViewStyleGridStyleVerticalGridOnly) != 0) {
+                    paint.setColor(graphViewStyle.getGridColor());
+                    canvas.drawLine(x, height - border, x, border, paint);
+                }
+
 				paint.setTextAlign(Align.CENTER);
 				if (i==horlabels.length-1)
 					paint.setTextAlign(Align.RIGHT);
