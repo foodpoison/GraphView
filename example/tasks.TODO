@@ -1,0 +1,17 @@
+GraphView enhancements
+-------- ✄ -----------------------
+
+LineStyles:
+ ☐ Dashed lines
+ ☐ Line -> Dot -> Line styles
+       http://dribbble.com/shots/357634-Dashboard-Performance?list=searches&tag=line_graph
+
+ ☐ setting background colour for LineGraphView (need to look at clipping)
+     ☐ pattern / drawable fill
+         http://dribbble.com/shots/228597-Chart?list=searches&tag=line_graph
+
+GridStyles:
+ ☐ Horizontal grid lines only
+ ☐ Horizontal dashed lines
+     http://dribbble.com/shots/819236-Simple-Stocks-Stats?list=searches&tag=line_graph
+
