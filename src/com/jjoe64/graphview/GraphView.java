@@ -120,7 +120,7 @@ abstract public class GraphView extends LinearLayout {
 			paint.setStrokeCap(Paint.Cap.ROUND);
 
 			for (int i=0; i<graphSeries.size(); i++) {
-				drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).style);
+				drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).getStyle());
 			}
 
 			if (showLegend) drawLegend(canvas, height, width);
@@ -354,7 +354,7 @@ abstract public class GraphView extends LinearLayout {
 		canvas.drawRoundRect(new RectF(lLeft, lTop, lRight, lBottom), 8, 8, paint);
 
 		for (int i=0; i<graphSeries.size(); i++) {
-			paint.setColor(graphSeries.get(i).style.color);
+			paint.setColor(graphSeries.get(i).getStyle().color);
 			canvas.drawRect(new RectF(lLeft+5, lTop+5+(i*(shapeSize+5)), lLeft+5+shapeSize, lTop+((i+1)*(shapeSize+5))), paint);
 			if (graphSeries.get(i).description != null) {
 				paint.setColor(Color.WHITE);

@@ -34,7 +34,7 @@ public class GraphViewSeries {
 	}
 
 	final String description;
-	final GraphViewSeriesStyle style;
+	private GraphViewSeriesStyle style;
 	GraphViewData[] values;
 	private final List<GraphView> graphViews = new ArrayList<GraphView>();
 
@@ -92,4 +92,13 @@ public class GraphViewSeries {
 			g.redrawAll();
 		}
 	}
+
+    public GraphViewSeriesStyle getStyle() {
+        return style;
+    }
+
+    public void setStyle(GraphViewSeriesStyle s) {
+        this.style = s;
+    }
+
 }

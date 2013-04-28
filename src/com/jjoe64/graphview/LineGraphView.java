@@ -2,7 +2,9 @@ package com.jjoe64.graphview;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.PathEffect;
 import android.util.AttributeSet;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
@@ -16,6 +18,48 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
  * http://www.gnu.org/licenses/lgpl.html
  */
 public class LineGraphView extends GraphView {
+
+    /**
+     * line graph series style: solid / dotted / dashed lines
+     * TODO: corners styles
+     */
+    static public class LineGraphViewSeriesStyle extends GraphViewSeriesStyle {
+
+        public static final int LineGraphViewSeriesLineStyleSolid = 0;
+        public static final int LineGraphViewSeriesLineStyleDotted = 1;
+        public static final int LineGraphViewSeriesLineStyleDashed = 2;
+        public static final int LineGraphViewSeriesLineStyleCustom = 3;
+//        public int color = 0xff0077cc;
+//        public int thickness = 3;
+        private PathEffect customPathEffect;
+        public int lineStyle = LineGraphViewSeriesLineStyleSolid;
+//        private ValueDependentColor valueDependentColor;
+
+        public LineGraphViewSeriesStyle() {
+            super();
+        }
+        public LineGraphViewSeriesStyle(int color, int thickness, int lineStyle) {
+            super(color, thickness);
+            this.lineStyle = lineStyle;
+
+        }
+        public void setLineStyle(int lineStyle) {
+            this.lineStyle = lineStyle;
+        }
+
+        public int getLineStyle() {
+            return this.lineStyle;
+        }
+
+        public PathEffect getCustomPathEffect() {
+            return this.customPathEffect;
+        }
+        public void setCustomPathEffect(PathEffect pEffect) {
+            this.customPathEffect = pEffect;
+        }
+    }
+
+
 	private final Paint paintBackground;
 	private boolean drawBackground;
 
@@ -41,6 +85,7 @@ public class LineGraphView extends GraphView {
 		double lastEndY = 0;
 		double lastEndX = 0;
 		if (drawBackground) {
+            // TODO: add drawable here
 			float startY = graphheight + border;
 			for (int i = 0; i < values.length; i++) {
 				double valY = values[i].valueY - minY;
@@ -77,8 +122,22 @@ public class LineGraphView extends GraphView {
 		}
 
 		// draw data
-		paint.setStrokeWidth(style.thickness);
-		paint.setColor(style.color);
+        paint.setStrokeWidth(style.thickness);
+        paint.setColor(style.color);
+        if (style instanceof LineGraphViewSeriesStyle) {
+            switch(((LineGraphViewSeriesStyle)style).getLineStyle()){
+                case LineGraphViewSeriesStyle.LineGraphViewSeriesLineStyleDotted:
+                    paint.setPathEffect(new DashPathEffect(new float[] {2,14}, 0));
+                    break;
+                case LineGraphViewSeriesStyle.LineGraphViewSeriesLineStyleDashed:
+                    paint.setPathEffect(new DashPathEffect(new float[] {16,20}, 0));
+                    break;
+                case LineGraphViewSeriesStyle.LineGraphViewSeriesLineStyleCustom:
+                    if (((LineGraphViewSeriesStyle) style).getCustomPathEffect() != null){
+                        paint.setPathEffect(((LineGraphViewSeriesStyle) style).getCustomPathEffect());
+                    }
+            }
+        }
 
 		lastEndY = 0;
 		lastEndX = 0;
