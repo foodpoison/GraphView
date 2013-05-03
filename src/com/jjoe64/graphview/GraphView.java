@@ -108,7 +108,8 @@ abstract public class GraphView extends LinearLayout {
 			}
 
 			paint.setTextAlign(Align.CENTER);
-			canvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
+            if (title != null && !title.isEmpty())
+			    canvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
 
 			if (maxY == minY) {
 				// if min/max is the same, fake it so that we can render a line
