@@ -279,8 +279,8 @@ abstract public class GraphView extends LinearLayout {
 
 		if (title == null)
 			title = "";
-		else
-			this.title = title;
+
+		this.title = title;
 
 		graphViewStyle = new GraphViewStyle();
 
