@@ -36,9 +36,9 @@ abstract public class GraphView extends LinearLayout {
 		static final float HORIZONTAL_LABEL_HEIGHT = 80;
 	}
 
-	private class GraphViewContentView extends View {
-		private float lastTouchEventX;
-		private float graphwidth;
+    protected class GraphViewContentView extends View {
+        protected float lastTouchEventX;
+		protected float graphwidth;
 
 		/**
 		 * @param context
@@ -48,68 +48,73 @@ abstract public class GraphView extends LinearLayout {
 			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		}
 
-		/**
-		 * @param canvas
-		 */
-		@Override
-		protected void onDraw(Canvas canvas) {
-
+        protected void drawChartBackground(Canvas canvas, float width, float height, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, float horstart) {
             paint.setAntiAlias(true);
 
-			// normal
-			paint.setStrokeWidth(0);
+            // normal
+            paint.setStrokeWidth(0);
 
-			float border = GraphViewConfig.BORDER;
-			float horstart = 0;
-			float height = getHeight();
-			float width = getWidth() - 1;
-			double maxY = getMaxY();
-			double minY = getMinY();
-			double maxX = getMaxX(false);
-			double minX = getMinX(false);
-			double diffX = maxX - minX;
-			float graphheight = height - (2 * border);
-			graphwidth = width;
+            if (horlabels == null) {
+                horlabels = generateHorlabels(graphwidth);
+            }
+            if (verlabels == null) {
+                verlabels = generateVerlabels(graphheight);
+            }
 
-			if (horlabels == null) {
-				horlabels = generateHorlabels(graphwidth);
-			}
-			if (verlabels == null) {
-				verlabels = generateVerlabels(graphheight);
-			}
-
-			// vertical lines
-			paint.setTextAlign(Align.LEFT);
-			int vers = verlabels.length - 1;
-			for (int i = 0; i < verlabels.length; i++) {
+            // vertical lines
+            paint.setTextAlign(Align.LEFT);
+            int vers = verlabels.length - 1;
+            for (int i = 0; i < verlabels.length; i++) {
                 if (i == 0 || i == verlabels.length-1 || (graphViewStyle.getGridStyle() & GraphViewStyle.kGraphViewStyleGridStyleHorizontalGridOnly) != 0){
-				    paint.setColor(graphViewStyle.getGridColor());
-				    float y = ((graphheight / vers) * i) + border;
-				    canvas.drawLine(horstart, y, width, y, paint);
+                    paint.setColor(graphViewStyle.getGridColor());
+                    float y = ((graphheight / vers) * i) + border;
+                    canvas.drawLine(horstart, y, width, y, paint);
                 }
-			}
+            }
 
-			// horizontal labels + lines
-			int hors = horlabels.length - 1;
-			for (int i = 0; i < horlabels.length; i++) {
+            // horizontal labels + lines
+            int hors = horlabels.length - 1;
+            for (int i = 0; i < horlabels.length; i++) {
                 float x = ((graphwidth / hors) * i) + horstart;
                 if (i == 0 || i == horlabels.length-1 || (graphViewStyle.getGridStyle() & GraphViewStyle.kGraphViewStyleGridStyleVerticalGridOnly) != 0) {
                     paint.setColor(graphViewStyle.getGridColor());
                     canvas.drawLine(x, height - border, x, border, paint);
                 }
 
-				paint.setTextAlign(Align.CENTER);
-				if (i==horlabels.length-1)
-					paint.setTextAlign(Align.RIGHT);
-				if (i==0)
-					paint.setTextAlign(Align.LEFT);
-				paint.setColor(graphViewStyle.getHorizontalLabelsColor());
-				canvas.drawText(horlabels[i], x, height - 4, paint);
-			}
+                paint.setTextAlign(Align.CENTER);
+                if (i==horlabels.length-1)
+                    paint.setTextAlign(Align.RIGHT);
+                if (i==0)
+                    paint.setTextAlign(Align.LEFT);
+                paint.setColor(graphViewStyle.getHorizontalLabelsColor());
+                canvas.drawText(horlabels[i], x, height - 4, paint);
+            }
 
-			paint.setTextAlign(Align.CENTER);
+            paint.setTextAlign(Align.CENTER);
             if (title != null && !title.isEmpty())
-			    canvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
+                canvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
+        }
+
+		/**
+		 * @param canvas
+		 */
+		@Override
+		protected void onDraw(Canvas canvas) {
+
+            float border = GraphViewConfig.BORDER;
+            float horstart = 0;
+            float height = getHeight();
+            float width = getWidth() - 1;
+            double maxY = getMaxY();
+            double minY = getMinY();
+            double maxX = getMaxX(false);
+            double minX = getMinX(false);
+            double diffX = maxX - minX;
+            float graphheight = height - (2 * border);
+            graphwidth = width;
+
+            // draw the chart background
+            drawChartBackground(canvas, width, height, graphwidth, graphheight, border, minX, minY, diffX, horstart);
 
 			if (maxY == minY) {
 				// if min/max is the same, fake it so that we can render a line
@@ -120,9 +125,7 @@ abstract public class GraphView extends LinearLayout {
 			double diffY = maxY - minY;
 			paint.setStrokeCap(Paint.Cap.ROUND);
 
-			for (int i=0; i<graphSeries.size(); i++) {
-				drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).getStyle());
-			}
+            drawGraphSeries(canvas, graphSeries, graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart);
 
 			if (showLegend) drawLegend(canvas, height, width);
 		}
@@ -241,24 +244,26 @@ abstract public class GraphView extends LinearLayout {
 	}
 
 	protected final Paint paint;
-	private String[] horlabels;
-	private String[] verlabels;
-	private String title;
+    protected String[] horlabels;
+    protected String[] verlabels;
+    protected String title;
 	private boolean scrollable;
-	private double viewportStart;
-	private double viewportSize;
-	private final View viewVerLabels;
+    protected double viewportStart;
+    protected double viewportSize;
+    protected final View viewVerLabels;
 	private ScaleGestureDetector scaleDetector;
 	private boolean scalable;
 	private final NumberFormat[] numberformatter = new NumberFormat[2];
-	private final List<GraphViewSeries> graphSeries;
+    protected final List<GraphViewSeries> graphSeries;
 	private boolean showLegend = false;
+	private boolean forceMinXZero = false;
+	private boolean forceMinYZero = false;
 	private float legendWidth = 120;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
-	private boolean manualYAxis;
-	private double manualMaxYValue;
-	private double manualMinYValue;
-	private GraphViewStyle graphViewStyle;
+    protected boolean manualYAxis;
+    protected double manualMaxYValue;
+    protected double manualMinYValue;
+    protected GraphViewStyle graphViewStyle;
 
 	public GraphView(Context context, AttributeSet attrs) {
 		this(context, attrs.getAttributeValue(null, "title"));
@@ -365,6 +370,12 @@ abstract public class GraphView extends LinearLayout {
 		}
 	}
 
+    protected void drawGraphSeries(Canvas canvas, List<GraphViewSeries> graphSeries, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart) {
+        for (int i=0; i<graphSeries.size(); i++) {
+            drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).getStyle());
+        }
+    }
+
 	abstract public void drawSeries(Canvas canvas, GraphViewData[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style);
 
 	/**
@@ -395,7 +406,7 @@ abstract public class GraphView extends LinearLayout {
 		return numberformatter[i].format(value);
 	}
 
-	private String[] generateHorlabels(float graphwidth) {
+	protected String[] generateHorlabels(float graphwidth) {
 		int numLabels = (int) (graphwidth/GraphViewConfig.VERTICAL_LABEL_WIDTH);
 		String[] labels = new String[numLabels+1];
 		double min = getMinX(false);
@@ -406,7 +417,7 @@ abstract public class GraphView extends LinearLayout {
 		return labels;
 	}
 
-	synchronized private String[] generateVerlabels(float graphheight) {
+	synchronized protected String[] generateVerlabels(float graphheight) {
 		int numLabels = (int) (graphheight/GraphViewConfig.HORIZONTAL_LABEL_HEIGHT);
 		String[] labels = new String[numLabels+1];
 		double min = getMinY();
@@ -495,7 +506,9 @@ abstract public class GraphView extends LinearLayout {
 		// if viewport is set, use this
 		if (!ignoreViewport && viewportSize != 0) {
 			return viewportStart;
-		} else {
+		} else if (forceMinXZero) {
+            return 0;
+        } else {
 			// otherwise use the min x value
 			// values must be sorted by x, so the first value has the smallest X value
 			double lowest = 0;
@@ -525,15 +538,17 @@ abstract public class GraphView extends LinearLayout {
 		double smallest;
 		if (manualYAxis) {
 			smallest = manualMinYValue;
-		} else {
-			smallest = Integer.MAX_VALUE;
-			for (int i=0; i<graphSeries.size(); i++) {
-				GraphViewData[] values = _values(i);
-				for (int ii=0; ii<values.length; ii++)
-					if (values[ii].valueY < smallest)
-						smallest = values[ii].valueY;
-			}
-		}
+		} else if (forceMinYZero) {
+            return 0;
+        } else {
+            smallest = Integer.MAX_VALUE;
+            for (int i=0; i<graphSeries.size(); i++) {
+                GraphViewData[] values = _values(i);
+                for (int ii=0; ii<values.length; ii++)
+                    if (values[ii].valueY < smallest)
+                        smallest = values[ii].valueY;
+            }
+        }
 		return smallest;
 	}
 
@@ -576,14 +591,6 @@ abstract public class GraphView extends LinearLayout {
 		redrawAll();
 	}
 
-	/**
-	 * set's static horizontal labels (from left to right)
-	 * @param horlabels if null, labels were generated automatically
-	 */
-	public void setHorizontalLabels(String[] horlabels) {
-		this.horlabels = horlabels;
-	}
-
 	public void setLegendAlign(LegendAlign legendAlign) {
 		this.legendAlign = legendAlign;
 	}
@@ -591,6 +598,13 @@ abstract public class GraphView extends LinearLayout {
 	public void setLegendWidth(float legendWidth) {
 		this.legendWidth = legendWidth;
 	}
+
+    public void setForceMinXZero(boolean bool) {
+        forceMinXZero = bool;
+    }
+    public void setForceMinYZero(boolean bool) {
+        forceMinYZero = bool;
+    }
 
 	/**
 	 * you have to set the bounds {@link #setManualYAxisBounds(double, double)}. That automatically enables manualYAxis-flag.
@@ -665,6 +679,14 @@ abstract public class GraphView extends LinearLayout {
 		this.showLegend = showLegend;
 	}
 
+    /**
+     * set's static horizontal labels (from left to right)
+     * @param horlabels if null, labels were generated automatically
+     */
+    public void setHorizontalLabels(String[] horlabels) {
+        this.horlabels = horlabels;
+    }
+
 	/**
 	 * set's static vertical labels (from top to bottom)
 	 * @param verlabels if null, labels were generated automatically
@@ -672,6 +694,7 @@ abstract public class GraphView extends LinearLayout {
 	public void setVerticalLabels(String[] verlabels) {
 		this.verlabels = verlabels;
 	}
+
 
 	/**
 	 * set's the viewport for the graph.
